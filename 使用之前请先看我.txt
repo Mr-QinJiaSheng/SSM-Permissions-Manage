@@ -1,0 +1,7 @@
+
+技术：Jsp 、SSM（Spring + Spring-MVC + Mybatis）、Shiro 、Mvc、Jdbc、MySQL、 Jquery + Ajax
+环境：JDK:JDK1.6+ 、WEB:Tomcat6.0+ 、DB:MySQL5+ 、IDE: MyEclipse8.5+/Eclipse4.4+ 
+使用：
+    找到文件夹sql中的sql文件，导入到mysql中
+    将工程导入到eclipse中，修改数据库连接信息
+    启动项目，浏览器地址栏输入：http://localhost:8080/kzoa/

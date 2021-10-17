@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+           http://www.springframework.org/schema/tx
+     	   http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- 采用注释的方式配置bean -->
+	<context:annotation-config />
+	<!-- 配置要扫描的包 -->
+	<context:component-scan base-package="com.kzfire.portal">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+
+	<!--proxy-target-class="true"强制使用cglib代理 如果为false则spring会自动选择 -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+
+	<!-- 数据库配置文件位置 -->
+	<context:property-placeholder
+		location="classpath:resources/jdbc.properties,classpath:resources/config.properties" />
+	<bean name="systemParam" class="com.kzfire.portal.utils.SystemParam">
+		<property name="imageService" value="${img.service}" />
+	</bean>
+
+	<!-- 这里主要是设置自定义的单Realm应用,若有多个Realm,可使用'realms'属性代替 -->
+	<bean id="myRealm" class="com.kzfire.portal.realm.MyRealm" />
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="myRealm" />
+	</bean>
+
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<property name="loginUrl" value="/ajaxTimeout.html" />
+		<property name="unauthorizedUrl" value="/unauth.jsp" />
+		<property name="filterChainDefinitionMap" ref="chainDefinitionSectionMetaSource" />
+	</bean>
+
+
+<bean id="chainDefinitionSectionMetaSource" class="com.kzfire.portal.realm.ChainDefinitionSectionMetaSource">
+    <property name="filterChainDefinitions">
+        <value>
+		/unauth.do*=anon
+		/login.do*=anon
+		/logout = logout
+		/login = authc
+        </value>
+    </property>
+</bean>
+
+	<!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+</beans>

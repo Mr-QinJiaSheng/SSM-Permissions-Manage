@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kzfire.portal.dao.PermissionDao">
+	<select id="getPersByUserAndGroup"
+	 parameterType="java.util.Map"
+	 resultType="com.kzfire.portal.vo.PermissionVo">
+		SELECT
+			m.id,
+			m.permission_code 'code',
+			m.permission_desc 'desc',
+			(
+				CASE
+				WHEN m.id IN (
+					SELECT
+						id
+					FROM
+						(
+							SELECT
+								a.id
+							FROM
+								sys_permission a
+							LEFT JOIN sys_role_permission b ON a.id = b.permission_id
+							WHERE
+								b.role_id = #{roleId}
+						) m
+				) THEN
+					1
+				ELSE
+					0
+				END
+			) AS isCheck
+		FROM
+			sys_permission m
+		WHERE
+			pid = #{pid}
+	</select>
+	
+	<select id="getPerGroupVo" resultType="com.kzfire.portal.vo.PerGroupVo">
+		select pid 'group'  from sys_permission GROUP BY pid  order by pid
+	</select>
+	<delete id="delPermissionByRoleId" parameterType="java.lang.Integer"> 
+		delete from sys_role_permission where role_id=#{roleId}
+	</delete>
+	
+	<delete id="delPermissionById" parameterType="java.lang.Integer"> 
+		delete from sys_permission where id=#{perId}
+	</delete>
+	
+		<delete id="delRolePerById" parameterType="java.lang.Integer"> 
+		delete from sys_role_permission where permission_id=#{perId}
+	</delete>
+
+	<update id="editPermission" parameterType="com.kzfire.portal.entiy.SysPermission">
+		update sys_permission 
+		<set>
+			<if test="permissionCode!=null">
+				permission_code=#{permissionCode},
+			</if>
+			<if test="permissionDesc!=null">
+				permission_desc=#{permissionDesc},
+			</if>
+			<if test="path!=null">
+				path=#{path},
+			</if>
+			<if test="pid!=null">
+				pid=#{pid},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<insert id="addRolePer" parameterType="com.kzfire.portal.entiy.SysRolePermission"
+		>
+		insert into sys_role_permission
+		(role_id,permission_id) values (#{roleId},#{permissionId})
+	</insert>
+	
+	<insert id="addPermission" parameterType="com.kzfire.portal.entiy.SysPermission"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into sys_permission
+		(permission_code,permission_desc,path,pid) values (#{permissionCode},#{permissionDesc},#{path},#{pid})
+	</insert>
+	
+	<select id="getPermissionById" resultType="com.kzfire.portal.entiy.SysPermission"
+		parameterType="java.lang.Integer">
+		select id,permission_code permissionCode,
+		permission_desc permissionDesc,path,pid
+		from sys_permission where id=#{perId}
+	</select>
+
+
+	<select id="getAll" resultType="com.kzfire.portal.entiy.SysPermission">
+		select id,permission_code permissionCode,
+		permission_desc permissionDesc,path,pid
+		from sys_permission 
+	</select>
+	
+	<select id="getList" resultType="com.kzfire.portal.entiy.SysPermission"
+		parameterType="com.kzfire.portal.vo.ConditionVo">
+		select id,permission_code permissionCode,
+		permission_desc permissionDesc,path,pid
+		from sys_permission order by pid limit #{startRow},#{endRow}
+	</select>
+</mapper>

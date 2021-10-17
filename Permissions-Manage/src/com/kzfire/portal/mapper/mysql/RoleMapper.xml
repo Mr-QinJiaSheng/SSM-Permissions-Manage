@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kzfire.portal.dao.RoleDao">
+	<delete id="delRoleById" parameterType="java.lang.Integer"> 
+		delete from sys_role where role_id=#{roleId}
+	</delete>
+	
+	<delete id="delPerRoleById" parameterType="java.lang.Integer"> 
+		delete from sys_role_permission where role_id=#{roleId}
+	</delete>
+	
+		<delete id="delUserRoleById" parameterType="java.lang.Integer"> 
+		delete from sys_user_role where role_id=#{roleId}
+	</delete>
+
+	<update id="editShop" parameterType="com.kzfire.portal.entiy.SysRole">
+		update sys_role 
+		<set>
+			<if test="roleCode!=null">
+				role_code=#{roleCode},
+			</if>
+			<if test="roleDesc!=null">
+				role_desc=#{roleDesc},
+			</if>
+		</set>
+		where role_id=#{roleId}
+	</update>
+
+	<insert id="addRole" parameterType="com.kzfire.portal.entiy.SysRole"
+		useGeneratedKeys="true" keyProperty="roleId">
+		insert into sys_role
+		(role_code,role_desc) values (#{roleCode},#{roleDesc})
+	</insert>
+	
+	<select id="getRoleById" resultType="com.kzfire.portal.entiy.SysRole"
+		parameterType="java.lang.Integer">
+		select role_id roleId,role_code roleCode,role_desc
+		roleDesc
+		from sys_role where role_id=#{roleId}
+	</select>
+
+	<select id="getList" resultType="com.kzfire.portal.entiy.SysRole"
+		parameterType="com.kzfire.portal.vo.ConditionVo">
+		select role_id roleId,role_code roleCode,role_desc
+		roleDesc
+		from sys_role order by role_id limit #{startRow},#{endRow}
+	</select>
+</mapper>
